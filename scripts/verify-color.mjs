@@ -252,5 +252,27 @@ check(
   String((pickerSrc.match(/nextPopoverSeq/g) ?? []).length),
 )
 
+/*
+  ── TWO RULES THAT CAME ACROSS WITH THE COMPONENT ────────────────────────
+
+  The app these were written in can no longer see the source that has to
+  satisfy them, and a check pointed at a thirty-line adapter is a check
+  about nothing. Both are about behaviour a reader cannot see being wrong.
+*/
+check(
+  'THE PINNED SWATCH CLEARS RATHER THAN PAINTS. A block given the page’s own colour IS painted, and stays that colour when somebody switches the theme — the way back has to store nothing at all',
+  pickerSrc.includes('onClick={() => choose(null)}'),
+)
+check(
+  'IT WRITES WHEN THE POINTER IS LIFTED, not while it moves: a drag across the square is a hundred colours, and a hundred entries on the undo stack is one Ctrl+Z walking back through every shade',
+  (pickerSrc.match(/onEnd=\{commit\}/g) ?? []).length === 2 &&
+    pickerSrc.includes('const commit = () => choose(hsvToHex(live.current))'),
+  String((pickerSrc.match(/onEnd=\{commit\}/g) ?? []).length),
+)
+check(
+  '…and BOTH of them, because the square and the slider are two surfaces a pointer is lifted from and one of them writing live is the same hundred entries',
+  (pickerSrc.match(/onEnd=\{commit\}/g) ?? []).length === 2,
+)
+
 console.log(`\n  ${checks - failures}/${checks} checks passed\n`)
 process.exit(failures === 0 ? 0 : 1)
