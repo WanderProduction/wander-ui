@@ -36,7 +36,11 @@ export default [
   {
     files: ['src/**/*.{js,jsx}'],
     languageOptions: {
-      ecmaVersion: 2024,
+      /* 'latest', NOT 2024: a JSON module is imported with an import ATTRIBUTE
+         (`with { type: 'json' }`), which node requires and espree only parses
+         from ES2025. Without this the emoji table is a parse error in the
+         linter and nowhere else. */
+      ecmaVersion: 'latest',
       sourceType: 'module',
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },

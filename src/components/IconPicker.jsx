@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Icons from 'lucide-react'
 import { Shuffle } from 'lucide-react'
-import { EMOJI_GROUPS } from './emoji.js'
+import { SUGGESTED, loadEmojis, matchEmojis } from './emoji.js'
 import { keepEmoji, readRecent, writeRecent } from '../lib/recent.js'
 /* THE RULES, OUT OF THE RENDER. Which icons exist, which a typed phrase
    reaches, and what a stored colour name resolves to are three answers that
@@ -57,10 +57,53 @@ export function ProductIcon({ icon, size = 16, palette = PALETTE, legacy = {} })
  * skipped cell measures zero, the grid collapses to nothing, and the scrollbar
  * jumps about as rows come into view.
  */
-const CELL = { contentVisibility: 'auto', containIntrinsicSize: '28px 28px' }
+/**
+ * HOW BIG ONE IS, and it is the measurement the whole panel is derived from.
+ *
+ * It was 28, which is the size of a toolbar button and the wrong size for a
+ * thing you are choosing by LOOKING at it. An emoji at 28 is a coloured
+ * smudge — the difference between 😬 and 😑 is in the mouth, and at that
+ * size there is no mouth. Forty-two is what a messaging app gives them, for
+ * the same reason.
+ */
+const SIZE = 42
 
-/** Nine columns of 28px, which is what the panel's width is derived from. */
-const GRID = { gridTemplateColumns: 'repeat(9, 28px)' }
+/**
+ * ONE CELL’S WORTH OF WORK, SKIPPED UNTIL IT IS ON SCREEN.
+ *
+ * `content-visibility: auto` is what makes 1,767 buttons affordable, and
+ * `contain-intrinsic-size` is what makes it correct: without a declared size
+ * a skipped cell measures zero, the grid collapses to nothing, and the
+ * scrollbar jumps about as rows come into view. It has to AGREE with the
+ * real size, so both come from `SIZE`.
+ */
+const CELL = { contentVisibility: 'auto', containIntrinsicSize: `${SIZE}px ${SIZE}px` }
+
+/** Eight columns, which is what the panel’s width is derived from. */
+const COLUMNS = 8
+const GAP = 2
+const GRID = { gridTemplateColumns: `repeat(${COLUMNS}, ${SIZE}px)` }
+
+/* THE PANEL IS AS WIDE AS ITS GRID, never a number somebody liked: the
+   columns, the gaps between them and the padding either side. Chosen
+   independently they disagree, the eighth column does not fit, and the row
+   silently becomes seven — a different picker on a different screen. */
+const PAD = 6
+
+/* AND THE SCROLLBAR IS PART OF THE WIDTH.
+
+   The grid always scrolls — that is what 1,767 icons are — so the vertical
+   scrollbar is always there, taking width from the row. Without an allowance
+   for it the arithmetic is right and the eighth column still does not fit: it
+   wraps, and a horizontal scrollbar appears under a grid that has nothing to
+   the right of it. Which is exactly what the first run of this looked like.
+
+   `scrollbar-gutter: stable` below is the other half — it reserves the space
+   on a platform whose scrollbars float over the content, so the number here is
+   right in both cases rather than right on Windows and twelve pixels loose on
+   a Mac. */
+const SCROLLBAR = 12
+const WIDTH = COLUMNS * SIZE + (COLUMNS - 1) * GAP + PAD * 2 + SCROLLBAR + 2
 
 /** A heading over a section of the grid. Sticky, so a long scroll stays placed. */
 function Heading({ children }) {
@@ -89,8 +132,8 @@ function Cell({ title, selected, onClick, children, ...rest }) {
       onClick={onClick}
       style={{
         ...CELL,
-        inlineSize: 28,
-        blockSize: 28,
+        inlineSize: SIZE,
+        blockSize: SIZE,
         borderRadius: 'var(--radius-base)',
         background: selected ? 'var(--accent-subtle)' : 'transparent',
       }}
@@ -165,38 +208,66 @@ export function IconPicker({
 
   const glyphs = useMemo(() => matchGlyphs(query), [query])
 
+  /*
+    ── THE EMOJI ARRIVE, THEY ARE NOT IMPORTED ──────────────────────────────
+
+    A megabyte of JSON, fetched the first time a picker opens and cached at
+    module scope after that, so a reopen is instant. Until it lands the Emoji
+    tab says so: a grid that is briefly empty reads as a picker with no
+    emoji in it, which is the one thing it is not.
+
+    FETCHED ONLY FOR THE TAB THAT NEEDS IT. Somebody who opens this to pick
+    a lucide glyph — which is most of the time, since that is the tab it
+    opens on — never asks for it at all.
+  */
+  const [emojiData, setEmojiData] = useState(null)
+  useEffect(() => {
+    if (tab !== 'emoji' || emojiData) return undefined
+    let live = true
+    loadEmojis().then((d) => {
+      if (live) setEmojiData(d)
+    })
+    return () => {
+      live = false
+    }
+  }, [tab, emojiData])
+
   const emoji = useMemo(() => {
+    if (!emojiData) return []
     const q = query.trim().toLowerCase()
-    if (!q) return EMOJI_GROUPS
     /*
-      BY NAME, which is the whole reason the generated table carries them.
+      SEARCHED OVER THE LABEL AND THE TAGS, which is the whole reason the
+      data carries tags: "happy" is not in the label of 😀 and "love" is not
+      in the label of ❤️, and both are what somebody types.
 
-      With ninety-six emoji a search could only filter the four group names and
-      the picker said so. With seventeen hundred, scrolling is not a way to
-      find anything and the name is the only handle there is — "cat" has to
-      reach the cat.
-
-      Groups that match nothing are dropped rather than drawn empty: a column
-      of headings over no results is a list that looks broken.
+      A SEARCH IS ONE LIST, not the groups with their matches left in. Three
+      results under three headings is more heading than result, and the
+      groups are only there so scrolling has landmarks.
     */
-    return EMOJI_GROUPS.map((g) => ({
-      name: g.name,
-      items: g.items.filter(([, name]) => name.includes(q)),
-    })).filter((g) => g.items.length > 0)
-  }, [query])
+    if (q) {
+      const hits = matchEmojis(emojiData, q)
+      return hits.length
+        ? [{ key: 'hits', title: `${hits.length} ${hits.length === 1 ? 'match' : 'matches'}`, items: hits }]
+        : []
+    }
+    return emojiData.sections
+  }, [emojiData, query])
 
-  const nothing = tab === 'lucide' ? glyphs.length === 0 : emoji.length === 0
+  /* "Nothing matches" is not the same as "nothing has arrived yet", and the
+     two look identical on screen. The Emoji tab says `Loading…` while it
+     waits and `No results` only once it has something to have searched. */
+  const nothing = tab === 'lucide' ? glyphs.length === 0 : Boolean(emojiData) && emoji.length === 0
 
   const panel = {
     position: at ? 'fixed' : 'absolute',
     insetBlockStart: at ? Math.min(at.y, window.innerHeight - 400) : '100%',
-    insetInlineStart: at ? Math.min(at.x, window.innerWidth - 332) : 0,
+    insetInlineStart: at ? Math.min(at.x, window.innerWidth - (WIDTH + 12)) : 0,
     zIndex,
     /* NINE COLUMNS OF 28 PLUS ITS GUTTERS AND PADDING. The width is derived
        from the grid rather than chosen: at 288 the ninth column did not fit
        and the row silently became eight, which is a different picker on a
        different screen. */
-    inlineSize: 320,
+    inlineSize: WIDTH,
     marginBlockStart: at ? 0 : 6,
     background: 'var(--card)',
     border: '1px solid var(--border)',
@@ -205,7 +276,7 @@ export function IconPicker({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    maxBlockSize: 380,
+    maxBlockSize: 460,
   }
 
   return (
@@ -253,10 +324,7 @@ export function IconPicker({
                        "Surprise me" is meant to hand somebody something they
                        might keep; drawn from everything it mostly returns a
                        symbol nobody wants on a page. */
-                    value:
-                      EMOJI_GROUPS[0].items[
-                        Math.floor(Math.random() * EMOJI_GROUPS[0].items.length)
-                      ][0],
+                    value: SUGGESTED[Math.floor(Math.random() * SUGGESTED.length)],
                   }
                 : {
                     kind: 'lucide',
@@ -333,7 +401,15 @@ export function IconPicker({
         </div>
       )}
 
-      <div style={{ flex: 1, minBlockSize: 180, overflowY: 'auto', padding: '0 6px 6px' }}>
+      <div
+        style={{
+          flex: 1,
+          minBlockSize: 300,
+          overflowY: 'auto',
+          scrollbarGutter: 'stable',
+          padding: `0 ${PAD}px ${PAD}px`,
+        }}
+      >
         {tab === 'lucide' ? (
           <div className="grid gap-0.5" style={GRID}>
             {glyphs.map((name) => {
@@ -345,7 +421,7 @@ export function IconPicker({
                   selected={value?.kind === 'lucide' && value.value === name}
                   onClick={() => pick({ kind: 'lucide', value: name, color })}
                 >
-                  <C size={18} strokeWidth={1.9} style={{ color: colorToken(color, palette, legacy) }} />
+                  <C size={24} strokeWidth={1.8} style={{ color: colorToken(color, palette, legacy) }} />
                 </Cell>
               )
             })}
@@ -370,25 +446,33 @@ export function IconPicker({
                       selected={value?.kind === 'emoji' && value.value === e}
                       onClick={() => pick({ kind: 'emoji', value: e })}
                     >
-                      <span style={{ fontSize: 18, lineHeight: 1 }}>{e}</span>
+                      <span style={{ fontSize: 28, lineHeight: 1 }}>{e}</span>
                     </Cell>
                   ))}
                 </div>
               </div>
             )}
+            {!emojiData && (
+              <p
+                className="text-xs flex items-center justify-center"
+                style={{ color: 'var(--muted-foreground)', paddingBlock: 24 }}
+              >
+                Loading…
+              </p>
+            )}
             {emoji.map((group) => (
-              <div key={group.name} style={{ marginBlockEnd: 6 }}>
-                <Heading>{group.name}</Heading>
+              <div key={group.key} style={{ marginBlockEnd: 6 }}>
+                <Heading>{group.title}</Heading>
                 <div className="grid gap-0.5" style={GRID}>
-                  {group.items.map(([e, name]) => (
+                  {group.items.map((e) => (
                     <Cell
-                      key={e}
-                      title={name}
-                      data-emoji={e}
-                      selected={value?.kind === 'emoji' && value.value === e}
-                      onClick={() => pick({ kind: 'emoji', value: e })}
+                      key={`${group.key}-${e.char}`}
+                      title={e.label}
+                      data-emoji={e.char}
+                      selected={value?.kind === 'emoji' && value.value === e.char}
+                      onClick={() => pick({ kind: 'emoji', value: e.char })}
                     >
-                      <span style={{ fontSize: 18, lineHeight: 1 }}>{e}</span>
+                      <span style={{ fontSize: 28, lineHeight: 1 }}>{e.char}</span>
                     </Cell>
                   ))}
                 </div>

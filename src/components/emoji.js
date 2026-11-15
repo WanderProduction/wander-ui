@@ -1,642 +1,149 @@
 /**
- * EVERY EMOJI, generated from the Unicode database rather than typed out.
+ * EVERY EMOJI, from `emojibase` — fetched when a picker first opens.
  *
- * ── WHY IT IS GENERATED ─────────────────────────────────────────────────────
+ * ── WHY NOT A TABLE IN THIS REPOSITORY ───────────────────────────────
  *
- * The picker used to offer ninety-six, hand-picked, on the argument that "a
- * business naming a product reaches for objects". That is true of the FIRST
- * choice and false of every one after it: the moment somebody wants a plant, a
- * cat or a flag, a curated list is a list that does not have the thing they
- * want, and there is no way to tell that from a list that is merely long.
+ * There was one, generated from `unicodedata`: 1,743 characters in seven
+ * groups. It was complete enough to look complete and wrong in three ways
+ * nobody would report as a bug.
  *
- * So the whole set is here, with its Unicode names, which is also what makes
- * it searchable — ninety-six needed no search, several thousand needs nothing
- * else. `scripts/gen-emoji.py` regenerates this from `unicodedata`; it is
- * checked in rather than built, because a build step for a table that changes
- * once a year is a build step that breaks more often than it helps.
+ *   NO FLAGS. A flag is a PAIR of regional indicators rather than one
+ *   character, so it is in no Unicode block and the generator never saw one.
+ *   A picker that has every emoji except the flags is a picker somebody
+ *   searches "israel" in twice and then stops trusting.
  *
- * ── THE GROUPS ARE UNICODE BLOCKS, NOT CATEGORIES ───────────────────────────
+ *   THE NAMES WERE UNICODE 6. `heavy black heart`, `smiling face with
+ *   heart-shaped eyes`. Searching "red heart" — which is what that character
+ *   is called today and what anybody would type — found nothing.
  *
- * "Smileys" and "Travel & places" are honest names for their blocks; "Nature &
- * things" covers a block that genuinely holds weather, plants and staplers,
- * because that is how Unicode filed them. Proper categories live in CLDR,
- * which this app does not ship and would not earn its size — SEARCH is how
- * anybody finds a specific emoji, and the groups are only there so scrolling
- * has landmarks.
+ *   AND THE GROUPS WERE BLOCKS, not categories. "Nature & things" held
+ *   weather, plants and staplers, because that is how Unicode filed them.
+ *   Proper categories live in CLDR, which the generator did not ship.
  *
- * SUGGESTED comes first and is the old curated list: still the right answer
- * for the first choice, no longer the only one available.
+ * `emojibase` is all three: 1,923 emoji with flags, CLDR labels, CLDR groups
+ * and a list of TAGS per emoji — so "happy" reaches 😀 and "love" reaches
+ * ❤️, which a search over labels alone cannot do.
  *
- * NO FLAGS. A flag is a PAIR of regional-indicator code points rather than one
- * character, so they are not in these blocks; adding them means shipping a
- * country list, which is a different feature and a bigger one than it looks.
+ * ── AND WHY IT IS FETCHED RATHER THAN IMPORTED ────────────────────────
  *
- * — generated, 1743 emoji, Unicode 16.0.0
+ * It is about a megabyte of JSON. Every page of every app that imports a
+ * ProductIcon would carry it, to draw a sixteen-pixel glyph that is usually
+ * a lucide one. A dynamic import makes it a chunk that arrives when somebody
+ * opens the picker and never again — cached at module scope below, so the
+ * first open pays for it and every reopen is instant.
  */
-export const EMOJI_GROUPS = [
-  {
-    name: 'Suggested',
-    items: [
-      ['📦','package'],['🎁','wrapped present'],['🏷','label'],['🛍','shopping bags'],
-      ['🧾','receipt'],['📁','file folder'],['📂','open file folder'],['🗂','card index dividers'],
-      ['📄','page facing up'],['📋','clipboard'],['📌','pushpin'],['🔖','bookmark'],
-      ['📎','paperclip'],['🗃','card file box'],['🧰','toolbox'],['🧱','brick'],['⚙','gear'],
-      ['🔧','wrench'],['🔩','nut and bolt'],['🪛','screwdriver'],['🧲','magnet'],['🔑','key'],
-      ['🗝','old key'],['🔐','closed lock with key'],['🎬','clapper board'],['🎥','movie camera'],
-      ['📷','camera'],['📸','camera with flash'],['📹','video camera'],['🎞','film frames'],
-      ['🖼','frame with picture'],['🎨','artist palette'],['🖌','lower left paintbrush'],
-      ['🖍','lower left crayon'],['✏','pencil'],['🎙','studio microphone'],['🎧','headphone'],
-      ['🎵','musical note'],['🎶','multiple musical notes'],['🎤','microphone'],
-      ['🔊','speaker with three sound waves'],['📺','television'],['💻','personal computer'],
-      ['🖥','desktop computer'],['⌨','keyboard'],['🖱','three button mouse'],['💾','floppy disk'],
-      ['💿','optical disc'],['💰','money bag'],['💵','banknote with dollar sign'],
-      ['💳','credit card'],['🧮','abacus'],['📈','chart with upwards trend'],
-      ['📉','chart with downwards trend'],['📊','bar chart'],['🏦','bank'],['💎','gem stone'],
-      ['🪙','coin'],['🤝','handshake'],['⏳','hourglass with flowing sand'],['⏱','stopwatch'],
-      ['📅','calendar'],['🗓','spiral calendar pad'],['🎯','direct hit'],['🏆','trophy'],
-      ['🥇','first place medal'],['⭐','white medium star'],['✨','sparkles'],['🔥','fire'],
-      ['⚡','high voltage sign'],['🚀','rocket'],['👤','bust in silhouette'],
-      ['👥','busts in silhouette'],['💼','briefcase'],['🏢','office building'],
-      ['🏠','house building'],['🏪','convenience store'],['🚚','delivery truck'],['✈','airplane'],
-      ['🌍','earth globe europe-africa'],['📍','round pushpin'],['📞','telephone receiver'],
-      ['✉','envelope'],['💬','speech balloon'],['🔔','bell'],['❤','heavy black heart'],
-      ['☕','hot beverage'],['🍰','shortcake'],
-    ],
-  },
-  {
-    name: 'Smileys',
-    items: [
-      ['😀','grinning face'],['😁','grinning face with smiling eyes'],
-      ['😂','face with tears of joy'],['😃','smiling face with open mouth'],
-      ['😄','smiling face with open mouth and smiling eyes'],
-      ['😅','smiling face with open mouth and cold sweat'],
-      ['😆','smiling face with open mouth and tightly-closed eyes'],
-      ['😇','smiling face with halo'],['😈','smiling face with horns'],['😉','winking face'],
-      ['😊','smiling face with smiling eyes'],['😋','face savouring delicious food'],
-      ['😌','relieved face'],['😍','smiling face with heart-shaped eyes'],
-      ['😎','smiling face with sunglasses'],['😏','smirking face'],['😐','neutral face'],
-      ['😑','expressionless face'],['😒','unamused face'],['😓','face with cold sweat'],
-      ['😔','pensive face'],['😕','confused face'],['😖','confounded face'],['😗','kissing face'],
-      ['😘','face throwing a kiss'],['😙','kissing face with smiling eyes'],
-      ['😚','kissing face with closed eyes'],['😛','face with stuck-out tongue'],
-      ['😜','face with stuck-out tongue and winking eye'],
-      ['😝','face with stuck-out tongue and tightly-closed eyes'],['😞','disappointed face'],
-      ['😟','worried face'],['😠','angry face'],['😡','pouting face'],['😢','crying face'],
-      ['😣','persevering face'],['😤','face with look of triumph'],
-      ['😥','disappointed but relieved face'],['😦','frowning face with open mouth'],
-      ['😧','anguished face'],['😨','fearful face'],['😩','weary face'],['😪','sleepy face'],
-      ['😫','tired face'],['😬','grimacing face'],['😭','loudly crying face'],
-      ['😮','face with open mouth'],['😯','hushed face'],
-      ['😰','face with open mouth and cold sweat'],['😱','face screaming in fear'],
-      ['😲','astonished face'],['😳','flushed face'],['😴','sleeping face'],['😵','dizzy face'],
-      ['😶','face without mouth'],['😷','face with medical mask'],
-      ['😸','grinning cat face with smiling eyes'],['😹','cat face with tears of joy'],
-      ['😺','smiling cat face with open mouth'],['😻','smiling cat face with heart-shaped eyes'],
-      ['😼','cat face with wry smile'],['😽','kissing cat face with closed eyes'],
-      ['😾','pouting cat face'],['😿','crying cat face'],['🙀','weary cat face'],
-      ['🙁','slightly frowning face'],['🙂','slightly smiling face'],['🙃','upside-down face'],
-      ['🙄','face with rolling eyes'],['🙅','face with no good gesture'],
-      ['🙆','face with ok gesture'],['🙇','person bowing deeply'],['🙈','see-no-evil monkey'],
-      ['🙉','hear-no-evil monkey'],['🙊','speak-no-evil monkey'],
-      ['🙋','happy person raising one hand'],['🙌','person raising both hands in celebration'],
-      ['🙍','person frowning'],['🙎','person with pouting face'],['🙏','person with folded hands'],
-    ],
-  },
-  {
-    name: 'Nature & things',
-    items: [
-      ['🌀','cyclone'],['🌁','foggy'],['🌂','closed umbrella'],['🌃','night with stars'],
-      ['🌄','sunrise over mountains'],['🌅','sunrise'],['🌆','cityscape at dusk'],
-      ['🌇','sunset over buildings'],['🌈','rainbow'],['🌉','bridge at night'],['🌊','water wave'],
-      ['🌋','volcano'],['🌌','milky way'],['🌎','earth globe americas'],
-      ['🌏','earth globe asia-australia'],['🌐','globe with meridians'],['🌑','new moon symbol'],
-      ['🌒','waxing crescent moon symbol'],['🌓','first quarter moon symbol'],
-      ['🌔','waxing gibbous moon symbol'],['🌕','full moon symbol'],
-      ['🌖','waning gibbous moon symbol'],['🌗','last quarter moon symbol'],
-      ['🌘','waning crescent moon symbol'],['🌙','crescent moon'],['🌚','new moon with face'],
-      ['🌛','first quarter moon with face'],['🌜','last quarter moon with face'],
-      ['🌝','full moon with face'],['🌞','sun with face'],['🌟','glowing star'],
-      ['🌠','shooting star'],['🌡','thermometer'],['🌢','black droplet'],['🌣','white sun'],
-      ['🌤','white sun with small cloud'],['🌥','white sun behind cloud'],
-      ['🌦','white sun behind cloud with rain'],['🌧','cloud with rain'],['🌨','cloud with snow'],
-      ['🌩','cloud with lightning'],['🌪','cloud with tornado'],['🌫','fog'],
-      ['🌬','wind blowing face'],['🌭','hot dog'],['🌮','taco'],['🌯','burrito'],['🌰','chestnut'],
-      ['🌱','seedling'],['🌲','evergreen tree'],['🌳','deciduous tree'],['🌴','palm tree'],
-      ['🌵','cactus'],['🌶','hot pepper'],['🌷','tulip'],['🌸','cherry blossom'],['🌹','rose'],
-      ['🌺','hibiscus'],['🌻','sunflower'],['🌼','blossom'],['🌽','ear of maize'],
-      ['🌾','ear of rice'],['🌿','herb'],['🍀','four leaf clover'],['🍁','maple leaf'],
-      ['🍂','fallen leaf'],['🍃','leaf fluttering in wind'],['🍄','mushroom'],['🍅','tomato'],
-      ['🍆','aubergine'],['🍇','grapes'],['🍈','melon'],['🍉','watermelon'],['🍊','tangerine'],
-      ['🍋','lemon'],['🍌','banana'],['🍍','pineapple'],['🍎','red apple'],['🍏','green apple'],
-      ['🍐','pear'],['🍑','peach'],['🍒','cherries'],['🍓','strawberry'],['🍔','hamburger'],
-      ['🍕','slice of pizza'],['🍖','meat on bone'],['🍗','poultry leg'],['🍘','rice cracker'],
-      ['🍙','rice ball'],['🍚','cooked rice'],['🍛','curry and rice'],['🍜','steaming bowl'],
-      ['🍝','spaghetti'],['🍞','bread'],['🍟','french fries'],['🍠','roasted sweet potato'],
-      ['🍡','dango'],['🍢','oden'],['🍣','sushi'],['🍤','fried shrimp'],
-      ['🍥','fish cake with swirl design'],['🍦','soft ice cream'],['🍧','shaved ice'],
-      ['🍨','ice cream'],['🍩','doughnut'],['🍪','cookie'],['🍫','chocolate bar'],['🍬','candy'],
-      ['🍭','lollipop'],['🍮','custard'],['🍯','honey pot'],['🍱','bento box'],['🍲','pot of food'],
-      ['🍳','cooking'],['🍴','fork and knife'],['🍵','teacup without handle'],
-      ['🍶','sake bottle and cup'],['🍷','wine glass'],['🍸','cocktail glass'],
-      ['🍹','tropical drink'],['🍺','beer mug'],['🍻','clinking beer mugs'],['🍼','baby bottle'],
-      ['🍽','fork and knife with plate'],['🍾','bottle with popping cork'],['🍿','popcorn'],
-      ['🎀','ribbon'],['🎂','birthday cake'],['🎃','jack-o-lantern'],['🎄','christmas tree'],
-      ['🎅','father christmas'],['🎆','fireworks'],['🎇','firework sparkler'],['🎈','balloon'],
-      ['🎉','party popper'],['🎊','confetti ball'],['🎋','tanabata tree'],['🎌','crossed flags'],
-      ['🎍','pine decoration'],['🎎','japanese dolls'],['🎏','carp streamer'],['🎐','wind chime'],
-      ['🎑','moon viewing ceremony'],['🎒','school satchel'],['🎓','graduation cap'],
-      ['🎔','heart with tip on the left'],['🎕','bouquet of flowers'],['🎖','military medal'],
-      ['🎗','reminder ribbon'],['🎘','musical keyboard with jacks'],['🎚','level slider'],
-      ['🎛','control knobs'],['🎜','beamed ascending musical notes'],
-      ['🎝','beamed descending musical notes'],['🎟','admission tickets'],['🎠','carousel horse'],
-      ['🎡','ferris wheel'],['🎢','roller coaster'],['🎣','fishing pole and fish'],['🎦','cinema'],
-      ['🎩','top hat'],['🎪','circus tent'],['🎫','ticket'],['🎭','performing arts'],
-      ['🎮','video game'],['🎰','slot machine'],['🎱','billiards'],['🎲','game die'],
-      ['🎳','bowling'],['🎴','flower playing cards'],['🎷','saxophone'],['🎸','guitar'],
-      ['🎹','musical keyboard'],['🎺','trumpet'],['🎻','violin'],['🎼','musical score'],
-      ['🎽','running shirt with sash'],['🎾','tennis racquet and ball'],['🎿','ski and ski boot'],
-      ['🏀','basketball and hoop'],['🏁','chequered flag'],['🏂','snowboarder'],['🏃','runner'],
-      ['🏄','surfer'],['🏅','sports medal'],['🏇','horse racing'],['🏈','american football'],
-      ['🏉','rugby football'],['🏊','swimmer'],['🏋','weight lifter'],['🏌','golfer'],
-      ['🏍','racing motorcycle'],['🏎','racing car'],['🏏','cricket bat and ball'],
-      ['🏐','volleyball'],['🏑','field hockey stick and ball'],['🏒','ice hockey stick and puck'],
-      ['🏓','table tennis paddle and ball'],['🏔','snow capped mountain'],['🏕','camping'],
-      ['🏖','beach with umbrella'],['🏗','building construction'],['🏘','house buildings'],
-      ['🏙','cityscape'],['🏚','derelict house building'],['🏛','classical building'],
-      ['🏜','desert'],['🏝','desert island'],['🏞','national park'],['🏟','stadium'],
-      ['🏡','house with garden'],['🏣','japanese post office'],['🏤','european post office'],
-      ['🏥','hospital'],['🏧','automated teller machine'],['🏨','hotel'],['🏩','love hotel'],
-      ['🏫','school'],['🏬','department store'],['🏭','factory'],['🏮','izakaya lantern'],
-      ['🏯','japanese castle'],['🏰','european castle'],['🏱','white pennant'],
-      ['🏲','black pennant'],['🏳','waving white flag'],['🏴','waving black flag'],['🏵','rosette'],
-      ['🏶','black rosette'],['🏸','badminton racquet and shuttlecock'],['🏹','bow and arrow'],
-      ['🏺','amphora'],['🏻','emoji modifier fitzpatrick type-1-2'],
-      ['🏼','emoji modifier fitzpatrick type-3'],['🏽','emoji modifier fitzpatrick type-4'],
-      ['🏾','emoji modifier fitzpatrick type-5'],['🏿','emoji modifier fitzpatrick type-6'],
-      ['🐀','rat'],['🐁','mouse'],['🐂','ox'],['🐃','water buffalo'],['🐄','cow'],['🐅','tiger'],
-      ['🐆','leopard'],['🐇','rabbit'],['🐈','cat'],['🐉','dragon'],['🐊','crocodile'],['🐋','whale'],
-      ['🐌','snail'],['🐍','snake'],['🐎','horse'],['🐏','ram'],['🐐','goat'],['🐑','sheep'],
-      ['🐒','monkey'],['🐓','rooster'],['🐔','chicken'],['🐕','dog'],['🐖','pig'],['🐗','boar'],
-      ['🐘','elephant'],['🐙','octopus'],['🐚','spiral shell'],['🐛','bug'],['🐜','ant'],
-      ['🐝','honeybee'],['🐞','lady beetle'],['🐟','fish'],['🐠','tropical fish'],['🐡','blowfish'],
-      ['🐢','turtle'],['🐣','hatching chick'],['🐤','baby chick'],['🐥','front-facing baby chick'],
-      ['🐦','bird'],['🐧','penguin'],['🐨','koala'],['🐩','poodle'],['🐪','dromedary camel'],
-      ['🐫','bactrian camel'],['🐬','dolphin'],['🐭','mouse face'],['🐮','cow face'],
-      ['🐯','tiger face'],['🐰','rabbit face'],['🐱','cat face'],['🐲','dragon face'],
-      ['🐳','spouting whale'],['🐴','horse face'],['🐵','monkey face'],['🐶','dog face'],
-      ['🐷','pig face'],['🐸','frog face'],['🐹','hamster face'],['🐺','wolf face'],
-      ['🐻','bear face'],['🐼','panda face'],['🐽','pig nose'],['🐾','paw prints'],['🐿','chipmunk'],
-      ['👀','eyes'],['👁','eye'],['👂','ear'],['👃','nose'],['👄','mouth'],['👅','tongue'],
-      ['👆','white up pointing backhand index'],['👇','white down pointing backhand index'],
-      ['👈','white left pointing backhand index'],['👉','white right pointing backhand index'],
-      ['👊','fisted hand sign'],['👋','waving hand sign'],['👌','ok hand sign'],
-      ['👍','thumbs up sign'],['👎','thumbs down sign'],['👏','clapping hands sign'],
-      ['👐','open hands sign'],['👑','crown'],['👒','womans hat'],['👓','eyeglasses'],
-      ['👔','necktie'],['👕','t-shirt'],['👖','jeans'],['👗','dress'],['👘','kimono'],['👙','bikini'],
-      ['👚','womans clothes'],['👛','purse'],['👜','handbag'],['👝','pouch'],['👞','mans shoe'],
-      ['👟','athletic shoe'],['👠','high-heeled shoe'],['👡','womans sandal'],['👢','womans boots'],
-      ['👣','footprints'],['👦','boy'],['👧','girl'],['👨','man'],['👩','woman'],['👪','family'],
-      ['👫','man and woman holding hands'],['👬','two men holding hands'],
-      ['👭','two women holding hands'],['👮','police officer'],['👯','woman with bunny ears'],
-      ['👰','bride with veil'],['👱','person with blond hair'],['👲','man with gua pi mao'],
-      ['👳','man with turban'],['👴','older man'],['👵','older woman'],['👶','baby'],
-      ['👷','construction worker'],['👸','princess'],['👹','japanese ogre'],
-      ['👺','japanese goblin'],['👻','ghost'],['👼','baby angel'],['👽','extraterrestrial alien'],
-      ['👾','alien monster'],['👿','imp'],['💀','skull'],['💁','information desk person'],
-      ['💂','guardsman'],['💃','dancer'],['💄','lipstick'],['💅','nail polish'],
-      ['💆','face massage'],['💇','haircut'],['💈','barber pole'],['💉','syringe'],['💊','pill'],
-      ['💋','kiss mark'],['💌','love letter'],['💍','ring'],['💏','kiss'],['💐','bouquet'],
-      ['💑','couple with heart'],['💒','wedding'],['💓','beating heart'],['💔','broken heart'],
-      ['💕','two hearts'],['💖','sparkling heart'],['💗','growing heart'],['💘','heart with arrow'],
-      ['💙','blue heart'],['💚','green heart'],['💛','yellow heart'],['💜','purple heart'],
-      ['💝','heart with ribbon'],['💞','revolving hearts'],['💟','heart decoration'],
-      ['💠','diamond shape with a dot inside'],['💡','electric light bulb'],['💢','anger symbol'],
-      ['💣','bomb'],['💤','sleeping symbol'],['💥','collision symbol'],
-      ['💦','splashing sweat symbol'],['💧','droplet'],['💨','dash symbol'],['💩','pile of poo'],
-      ['💪','flexed biceps'],['💫','dizzy symbol'],['💭','thought balloon'],['💮','white flower'],
-      ['💯','hundred points symbol'],['💱','currency exchange'],['💲','heavy dollar sign'],
-      ['💴','banknote with yen sign'],['💶','banknote with euro sign'],
-      ['💷','banknote with pound sign'],['💸','money with wings'],
-      ['💹','chart with upwards trend and yen sign'],['💺','seat'],['💽','minidisc'],['📀','dvd'],
-      ['📃','page with curl'],['📆','tear-off calendar'],['📇','card index'],
-      ['📏','straight ruler'],['📐','triangular ruler'],['📑','bookmark tabs'],['📒','ledger'],
-      ['📓','notebook'],['📔','notebook with decorative cover'],['📕','closed book'],
-      ['📖','open book'],['📗','green book'],['📘','blue book'],['📙','orange book'],['📚','books'],
-      ['📛','name badge'],['📜','scroll'],['📝','memo'],['📟','pager'],['📠','fax machine'],
-      ['📡','satellite antenna'],['📢','public address loudspeaker'],['📣','cheering megaphone'],
-      ['📤','outbox tray'],['📥','inbox tray'],['📧','e-mail symbol'],['📨','incoming envelope'],
-      ['📩','envelope with downwards arrow above'],['📪','closed mailbox with lowered flag'],
-      ['📫','closed mailbox with raised flag'],['📬','open mailbox with raised flag'],
-      ['📭','open mailbox with lowered flag'],['📮','postbox'],['📯','postal horn'],
-      ['📰','newspaper'],['📱','mobile phone'],['📲','mobile phone with rightwards arrow at left'],
-      ['📳','vibration mode'],['📴','mobile phone off'],['📵','no mobile phones'],
-      ['📶','antenna with bars'],['📻','radio'],['📼','videocassette'],['📽','film projector'],
-      ['📾','portable stereo'],['📿','prayer beads'],['🔀','twisted rightwards arrows'],
-      ['🔁','clockwise rightwards and leftwards open circle arrows'],
-      ['🔂','clockwise rightwards and leftwards open circle arrows with circled one overlay'],
-      ['🔃','clockwise downwards and upwards open circle arrows'],
-      ['🔄','anticlockwise downwards and upwards open circle arrows'],
-      ['🔅','low brightness symbol'],['🔆','high brightness symbol'],
-      ['🔇','speaker with cancellation stroke'],['🔈','speaker'],
-      ['🔉','speaker with one sound wave'],['🔋','battery'],['🔌','electric plug'],
-      ['🔍','left-pointing magnifying glass'],['🔎','right-pointing magnifying glass'],
-      ['🔏','lock with ink pen'],['🔒','lock'],['🔓','open lock'],
-      ['🔕','bell with cancellation stroke'],['🔗','link symbol'],['🔘','radio button'],
-      ['🔙','back with leftwards arrow above'],['🔚','end with leftwards arrow above'],
-      ['🔛','on with exclamation mark with left right arrow above'],
-      ['🔜','soon with rightwards arrow above'],['🔝','top with upwards arrow above'],
-      ['🔞','no one under eighteen symbol'],['🔟','keycap ten'],
-      ['🔠','input symbol for latin capital letters'],
-      ['🔡','input symbol for latin small letters'],['🔢','input symbol for numbers'],
-      ['🔣','input symbol for symbols'],['🔤','input symbol for latin letters'],
-      ['🔦','electric torch'],['🔨','hammer'],['🔪','hocho'],['🔫','pistol'],['🔬','microscope'],
-      ['🔭','telescope'],['🔮','crystal ball'],['🔯','six pointed star with middle dot'],
-      ['🔰','japanese symbol for beginner'],['🔱','trident emblem'],['🔲','black square button'],
-      ['🔳','white square button'],['🔴','large red circle'],['🔵','large blue circle'],
-      ['🔶','large orange diamond'],['🔷','large blue diamond'],['🔸','small orange diamond'],
-      ['🔹','small blue diamond'],['🔺','up-pointing red triangle'],
-      ['🔻','down-pointing red triangle'],['🔼','up-pointing small red triangle'],
-      ['🔽','down-pointing small red triangle'],['🔾','lower right shadowed white circle'],
-      ['🔿','upper right shadowed white circle'],['🕀','circled cross pommee'],
-      ['🕁','cross pommee with half-circle below'],['🕂','cross pommee'],
-      ['🕃','notched left semicircle with three dots'],
-      ['🕄','notched right semicircle with three dots'],['🕅','symbol for marks chapter'],
-      ['🕆','white latin cross'],['🕇','heavy latin cross'],['🕈','celtic cross'],
-      ['🕉','om symbol'],['🕊','dove of peace'],['🕋','kaaba'],['🕌','mosque'],['🕍','synagogue'],
-      ['🕎','menorah with nine branches'],['🕏','bowl of hygieia'],['🕐','clock face one oclock'],
-      ['🕑','clock face two oclock'],['🕒','clock face three oclock'],
-      ['🕓','clock face four oclock'],['🕔','clock face five oclock'],
-      ['🕕','clock face six oclock'],['🕖','clock face seven oclock'],
-      ['🕗','clock face eight oclock'],['🕘','clock face nine oclock'],
-      ['🕙','clock face ten oclock'],['🕚','clock face eleven oclock'],
-      ['🕛','clock face twelve oclock'],['🕜','clock face one-thirty'],
-      ['🕝','clock face two-thirty'],['🕞','clock face three-thirty'],
-      ['🕟','clock face four-thirty'],['🕠','clock face five-thirty'],
-      ['🕡','clock face six-thirty'],['🕢','clock face seven-thirty'],
-      ['🕣','clock face eight-thirty'],['🕤','clock face nine-thirty'],
-      ['🕥','clock face ten-thirty'],['🕦','clock face eleven-thirty'],
-      ['🕧','clock face twelve-thirty'],['🕨','right speaker'],
-      ['🕩','right speaker with one sound wave'],['🕪','right speaker with three sound waves'],
-      ['🕫','bullhorn'],['🕬','bullhorn with sound waves'],['🕭','ringing bell'],['🕮','book'],
-      ['🕯','candle'],['🕰','mantelpiece clock'],['🕱','black skull and crossbones'],
-      ['🕲','no piracy'],['🕳','hole'],['🕴','man in business suit levitating'],
-      ['🕵','sleuth or spy'],['🕶','dark sunglasses'],['🕷','spider'],['🕸','spider web'],
-      ['🕹','joystick'],['🕺','man dancing'],['🕻','left hand telephone receiver'],
-      ['🕼','telephone receiver with page'],['🕽','right hand telephone receiver'],
-      ['🕾','white touchtone telephone'],['🕿','black touchtone telephone'],
-      ['🖀','telephone on top of modem'],['🖁','clamshell mobile phone'],['🖂','back of envelope'],
-      ['🖃','stamped envelope'],['🖄','envelope with lightning'],['🖅','flying envelope'],
-      ['🖆','pen over stamped envelope'],['🖇','linked paperclips'],['🖈','black pushpin'],
-      ['🖉','lower left pencil'],['🖊','lower left ballpoint pen'],
-      ['🖋','lower left fountain pen'],['🖎','left writing hand'],['🖏','turned ok hand sign'],
-      ['🖐','raised hand with fingers splayed'],
-      ['🖑','reversed raised hand with fingers splayed'],['🖒','reversed thumbs up sign'],
-      ['🖓','reversed thumbs down sign'],['🖔','reversed victory hand'],
-      ['🖕','reversed hand with middle finger extended'],
-      ['🖖','raised hand with part between middle and ring fingers'],
-      ['🖗','white down pointing left hand index'],['🖘','sideways white left pointing index'],
-      ['🖙','sideways white right pointing index'],['🖚','sideways black left pointing index'],
-      ['🖛','sideways black right pointing index'],['🖜','black left pointing backhand index'],
-      ['🖝','black right pointing backhand index'],['🖞','sideways white up pointing index'],
-      ['🖟','sideways white down pointing index'],['🖠','sideways black up pointing index'],
-      ['🖡','sideways black down pointing index'],['🖢','black up pointing backhand index'],
-      ['🖣','black down pointing backhand index'],['🖤','black heart'],['🖦','keyboard and mouse'],
-      ['🖧','three networked computers'],['🖨','printer'],['🖩','pocket calculator'],
-      ['🖪','black hard shell floppy disk'],['🖫','white hard shell floppy disk'],
-      ['🖬','soft shell floppy disk'],['🖭','tape cartridge'],['🖮','wired keyboard'],
-      ['🖯','one button mouse'],['🖰','two button mouse'],['🖲','trackball'],
-      ['🖳','old personal computer'],['🖴','hard disk'],['🖵','screen'],['🖶','printer icon'],
-      ['🖷','fax icon'],['🖸','optical disc icon'],['🖹','document with text'],
-      ['🖺','document with text and picture'],['🖻','document with picture'],
-      ['🖽','frame with tiles'],['🖾','frame with an x'],['🖿','black folder'],['🗀','folder'],
-      ['🗁','open folder'],['🗄','file cabinet'],['🗅','empty note'],['🗆','empty note page'],
-      ['🗇','empty note pad'],['🗈','note'],['🗉','note page'],['🗊','note pad'],
-      ['🗋','empty document'],['🗌','empty page'],['🗍','empty pages'],['🗎','document'],
-      ['🗏','page'],['🗐','pages'],['🗑','wastebasket'],['🗒','spiral note pad'],
-      ['🗔','desktop window'],['🗕','minimize'],['🗖','maximize'],['🗗','overlap'],
-      ['🗘','clockwise right and left semicircle arrows'],['🗙','cancellation x'],
-      ['🗚','increase font size symbol'],['🗛','decrease font size symbol'],['🗜','compression'],
-      ['🗞','rolled-up newspaper'],['🗟','page with circled text'],['🗠','stock chart'],
-      ['🗡','dagger knife'],['🗢','lips'],['🗣','speaking head in silhouette'],
-      ['🗤','three rays above'],['🗥','three rays below'],['🗦','three rays left'],
-      ['🗧','three rays right'],['🗨','left speech bubble'],['🗩','right speech bubble'],
-      ['🗪','two speech bubbles'],['🗫','three speech bubbles'],['🗬','left thought bubble'],
-      ['🗭','right thought bubble'],['🗮','left anger bubble'],['🗯','right anger bubble'],
-      ['🗰','mood bubble'],['🗱','lightning mood bubble'],['🗲','lightning mood'],
-      ['🗳','ballot box with ballot'],['🗴','ballot script x'],['🗵','ballot box with script x'],
-      ['🗶','ballot bold script x'],['🗷','ballot box with bold script x'],
-      ['🗸','light check mark'],['🗹','ballot box with bold check'],['🗺','world map'],
-      ['🗻','mount fuji'],['🗼','tokyo tower'],['🗽','statue of liberty'],
-      ['🗾','silhouette of japan'],['🗿','moyai'],
-    ],
-  },
-  {
-    name: 'People & more',
-    items: [
-      ['🤀','circled cross formee with four dots'],['🤁','circled cross formee with two dots'],
-      ['🤂','circled cross formee'],['🤃','left half circle with four dots'],
-      ['🤄','left half circle with three dots'],['🤅','left half circle with two dots'],
-      ['🤆','left half circle with dot'],['🤇','left half circle'],['🤈','downward facing hook'],
-      ['🤉','downward facing notched hook'],['🤊','downward facing hook with dot'],
-      ['🤋','downward facing notched hook with dot'],['🤌','pinched fingers'],['🤍','white heart'],
-      ['🤎','brown heart'],['🤏','pinching hand'],['🤐','zipper-mouth face'],
-      ['🤑','money-mouth face'],['🤒','face with thermometer'],['🤓','nerd face'],
-      ['🤔','thinking face'],['🤕','face with head-bandage'],['🤖','robot face'],
-      ['🤗','hugging face'],['🤘','sign of the horns'],['🤙','call me hand'],
-      ['🤚','raised back of hand'],['🤛','left-facing fist'],['🤜','right-facing fist'],
-      ['🤞','hand with index and middle fingers crossed'],['🤟','i love you hand sign'],
-      ['🤠','face with cowboy hat'],['🤡','clown face'],['🤢','nauseated face'],
-      ['🤣','rolling on the floor laughing'],['🤤','drooling face'],['🤥','lying face'],
-      ['🤦','face palm'],['🤧','sneezing face'],['🤨','face with one eyebrow raised'],
-      ['🤩','grinning face with star eyes'],
-      ['🤪','grinning face with one large and one small eye'],
-      ['🤫','face with finger covering closed lips'],
-      ['🤬','serious face with symbols covering mouth'],
-      ['🤭','smiling face with smiling eyes and hand covering mouth'],
-      ['🤮','face with open mouth vomiting'],['🤯','shocked face with exploding head'],
-      ['🤰','pregnant woman'],['🤱','breast-feeding'],['🤲','palms up together'],['🤳','selfie'],
-      ['🤴','prince'],['🤵','man in tuxedo'],['🤶','mother christmas'],['🤷','shrug'],
-      ['🤸','person doing cartwheel'],['🤹','juggling'],['🤺','fencer'],['🤻','modern pentathlon'],
-      ['🤼','wrestlers'],['🤽','water polo'],['🤾','handball'],['🤿','diving mask'],
-      ['🥀','wilted flower'],['🥁','drum with drumsticks'],['🥂','clinking glasses'],
-      ['🥃','tumbler glass'],['🥄','spoon'],['🥅','goal net'],['🥆','rifle'],
-      ['🥈','second place medal'],['🥉','third place medal'],['🥊','boxing glove'],
-      ['🥋','martial arts uniform'],['🥌','curling stone'],['🥍','lacrosse stick and ball'],
-      ['🥎','softball'],['🥏','flying disc'],['🥐','croissant'],['🥑','avocado'],['🥒','cucumber'],
-      ['🥓','bacon'],['🥔','potato'],['🥕','carrot'],['🥖','baguette bread'],['🥗','green salad'],
-      ['🥘','shallow pan of food'],['🥙','stuffed flatbread'],['🥚','egg'],['🥛','glass of milk'],
-      ['🥜','peanuts'],['🥝','kiwifruit'],['🥞','pancakes'],['🥟','dumpling'],
-      ['🥠','fortune cookie'],['🥡','takeout box'],['🥢','chopsticks'],['🥣','bowl with spoon'],
-      ['🥤','cup with straw'],['🥥','coconut'],['🥦','broccoli'],['🥧','pie'],['🥨','pretzel'],
-      ['🥩','cut of meat'],['🥪','sandwich'],['🥫','canned food'],['🥬','leafy green'],
-      ['🥭','mango'],['🥮','moon cake'],['🥯','bagel'],
-      ['🥰','smiling face with smiling eyes and three hearts'],['🥱','yawning face'],
-      ['🥲','smiling face with tear'],['🥳','face with party horn and party hat'],
-      ['🥴','face with uneven eyes and wavy mouth'],['🥵','overheated face'],
-      ['🥶','freezing face'],['🥷','ninja'],['🥸','disguised face'],
-      ['🥹','face holding back tears'],['🥺','face with pleading eyes'],['🥻','sari'],
-      ['🥼','lab coat'],['🥽','goggles'],['🥾','hiking boot'],['🥿','flat shoe'],['🦀','crab'],
-      ['🦁','lion face'],['🦂','scorpion'],['🦃','turkey'],['🦄','unicorn face'],['🦅','eagle'],
-      ['🦆','duck'],['🦇','bat'],['🦈','shark'],['🦉','owl'],['🦊','fox face'],['🦋','butterfly'],
-      ['🦌','deer'],['🦍','gorilla'],['🦎','lizard'],['🦏','rhinoceros'],['🦐','shrimp'],
-      ['🦑','squid'],['🦒','giraffe face'],['🦓','zebra face'],['🦔','hedgehog'],['🦕','sauropod'],
-      ['🦖','t-rex'],['🦗','cricket'],['🦘','kangaroo'],['🦙','llama'],['🦚','peacock'],
-      ['🦛','hippopotamus'],['🦜','parrot'],['🦝','raccoon'],['🦞','lobster'],['🦟','mosquito'],
-      ['🦠','microbe'],['🦡','badger'],['🦢','swan'],['🦣','mammoth'],['🦤','dodo'],['🦥','sloth'],
-      ['🦦','otter'],['🦧','orangutan'],['🦨','skunk'],['🦩','flamingo'],['🦪','oyster'],
-      ['🦫','beaver'],['🦬','bison'],['🦭','seal'],['🦮','guide dog'],['🦯','probing cane'],
-      ['🦰','emoji component red hair'],['🦱','emoji component curly hair'],
-      ['🦲','emoji component bald'],['🦳','emoji component white hair'],['🦴','bone'],['🦵','leg'],
-      ['🦶','foot'],['🦷','tooth'],['🦸','superhero'],['🦹','supervillain'],['🦺','safety vest'],
-      ['🦻','ear with hearing aid'],['🦼','motorized wheelchair'],['🦽','manual wheelchair'],
-      ['🦾','mechanical arm'],['🦿','mechanical leg'],['🧀','cheese wedge'],['🧁','cupcake'],
-      ['🧂','salt shaker'],['🧃','beverage box'],['🧄','garlic'],['🧅','onion'],['🧆','falafel'],
-      ['🧇','waffle'],['🧈','butter'],['🧉','mate drink'],['🧊','ice cube'],['🧋','bubble tea'],
-      ['🧌','troll'],['🧍','standing person'],['🧎','kneeling person'],['🧏','deaf person'],
-      ['🧐','face with monocle'],['🧑','adult'],['🧒','child'],['🧓','older adult'],
-      ['🧔','bearded person'],['🧕','person with headscarf'],['🧖','person in steamy room'],
-      ['🧗','person climbing'],['🧘','person in lotus position'],['🧙','mage'],['🧚','fairy'],
-      ['🧛','vampire'],['🧜','merperson'],['🧝','elf'],['🧞','genie'],['🧟','zombie'],['🧠','brain'],
-      ['🧡','orange heart'],['🧢','billed cap'],['🧣','scarf'],['🧤','gloves'],['🧥','coat'],
-      ['🧦','socks'],['🧧','red gift envelope'],['🧨','firecracker'],['🧩','jigsaw puzzle piece'],
-      ['🧪','test tube'],['🧫','petri dish'],['🧬','dna double helix'],['🧭','compass'],
-      ['🧯','fire extinguisher'],['🧳','luggage'],['🧴','lotion bottle'],['🧵','spool of thread'],
-      ['🧶','ball of yarn'],['🧷','safety pin'],['🧸','teddy bear'],['🧹','broom'],['🧺','basket'],
-      ['🧻','roll of paper'],['🧼','bar of soap'],['🧽','sponge'],['🧿','nazar amulet'],
-    ],
-  },
-  {
-    name: 'Travel & places',
-    items: [
-      ['🚁','helicopter'],['🚂','steam locomotive'],['🚃','railway car'],['🚄','high-speed train'],
-      ['🚅','high-speed train with bullet nose'],['🚆','train'],['🚇','metro'],['🚈','light rail'],
-      ['🚉','station'],['🚊','tram'],['🚋','tram car'],['🚌','bus'],['🚍','oncoming bus'],
-      ['🚎','trolleybus'],['🚏','bus stop'],['🚐','minibus'],['🚑','ambulance'],['🚒','fire engine'],
-      ['🚓','police car'],['🚔','oncoming police car'],['🚕','taxi'],['🚖','oncoming taxi'],
-      ['🚗','automobile'],['🚘','oncoming automobile'],['🚙','recreational vehicle'],
-      ['🚛','articulated lorry'],['🚜','tractor'],['🚝','monorail'],['🚞','mountain railway'],
-      ['🚟','suspension railway'],['🚠','mountain cableway'],['🚡','aerial tramway'],['🚢','ship'],
-      ['🚣','rowboat'],['🚤','speedboat'],['🚥','horizontal traffic light'],
-      ['🚦','vertical traffic light'],['🚧','construction sign'],
-      ['🚨','police cars revolving light'],['🚩','triangular flag on post'],['🚪','door'],
-      ['🚫','no entry sign'],['🚬','smoking symbol'],['🚭','no smoking symbol'],
-      ['🚮','put litter in its place symbol'],['🚯','do not litter symbol'],
-      ['🚰','potable water symbol'],['🚱','non-potable water symbol'],['🚲','bicycle'],
-      ['🚳','no bicycles'],['🚴','bicyclist'],['🚵','mountain bicyclist'],['🚶','pedestrian'],
-      ['🚷','no pedestrians'],['🚸','children crossing'],['🚹','mens symbol'],
-      ['🚺','womens symbol'],['🚻','restroom'],['🚼','baby symbol'],['🚽','toilet'],
-      ['🚾','water closet'],['🚿','shower'],['🛀','bath'],['🛁','bathtub'],['🛂','passport control'],
-      ['🛃','customs'],['🛄','baggage claim'],['🛅','left luggage'],
-      ['🛆','triangle with rounded corners'],['🛇','prohibited sign'],
-      ['🛈','circled information source'],['🛉','boys symbol'],['🛊','girls symbol'],
-      ['🛋','couch and lamp'],['🛌','sleeping accommodation'],['🛎','bellhop bell'],['🛏','bed'],
-      ['🛐','place of worship'],['🛑','octagonal sign'],['🛒','shopping trolley'],['🛓','stupa'],
-      ['🛔','pagoda'],['🛕','hindu temple'],['🛖','hut'],['🛗','elevator'],['🛜','wireless'],
-      ['🛝','playground slide'],['🛞','wheel'],['🛟','ring buoy'],['🛠','hammer and wrench'],
-      ['🛡','shield'],['🛢','oil drum'],['🛣','motorway'],['🛤','railway track'],['🛥','motor boat'],
-      ['🛦','up-pointing military airplane'],['🛧','up-pointing airplane'],
-      ['🛨','up-pointing small airplane'],['🛩','small airplane'],
-      ['🛪','northeast-pointing airplane'],['🛫','airplane departure'],['🛬','airplane arriving'],
-      ['🛰','satellite'],['🛱','oncoming fire engine'],['🛲','diesel locomotive'],
-      ['🛳','passenger ship'],['🛴','scooter'],['🛵','motor scooter'],['🛶','canoe'],['🛷','sled'],
-      ['🛸','flying saucer'],['🛹','skateboard'],['🛺','auto rickshaw'],['🛻','pickup truck'],
-      ['🛼','roller skate'],
-    ],
-  },
-  {
-    name: 'Newer additions',
-    items: [
-      ['🩰','ballet shoes'],['🩱','one-piece swimsuit'],['🩲','briefs'],['🩳','shorts'],
-      ['🩴','thong sandal'],['🩵','light blue heart'],['🩶','grey heart'],['🩷','pink heart'],
-      ['🩸','drop of blood'],['🩹','adhesive bandage'],['🩺','stethoscope'],['🩻','x-ray'],
-      ['🩼','crutch'],['🪀','yo-yo'],['🪁','kite'],['🪂','parachute'],['🪃','boomerang'],
-      ['🪄','magic wand'],['🪅','pinata'],['🪆','nesting dolls'],['🪇','maracas'],['🪈','flute'],
-      ['🪉','harp'],['🪏','shovel'],['🪐','ringed planet'],['🪑','chair'],['🪒','razor'],['🪓','axe'],
-      ['🪔','diya lamp'],['🪕','banjo'],['🪖','military helmet'],['🪗','accordion'],
-      ['🪘','long drum'],['🪚','carpentry saw'],['🪜','ladder'],['🪝','hook'],['🪞','mirror'],
-      ['🪟','window'],['🪠','plunger'],['🪡','sewing needle'],['🪢','knot'],['🪣','bucket'],
-      ['🪤','mouse trap'],['🪥','toothbrush'],['🪦','headstone'],['🪧','placard'],['🪨','rock'],
-      ['🪩','mirror ball'],['🪪','identification card'],['🪫','low battery'],['🪬','hamsa'],
-      ['🪭','folding hand fan'],['🪮','hair pick'],['🪯','khanda'],['🪰','fly'],['🪱','worm'],
-      ['🪲','beetle'],['🪳','cockroach'],['🪴','potted plant'],['🪵','wood'],['🪶','feather'],
-      ['🪷','lotus'],['🪸','coral'],['🪹','empty nest'],['🪺','nest with eggs'],['🪻','hyacinth'],
-      ['🪼','jellyfish'],['🪽','wing'],['🪾','leafless tree'],['🪿','goose'],
-      ['🫀','anatomical heart'],['🫁','lungs'],['🫂','people hugging'],['🫃','pregnant man'],
-      ['🫄','pregnant person'],['🫅','person with crown'],['🫆','fingerprint'],['🫎','moose'],
-      ['🫏','donkey'],['🫐','blueberries'],['🫑','bell pepper'],['🫒','olive'],['🫓','flatbread'],
-      ['🫔','tamale'],['🫕','fondue'],['🫖','teapot'],['🫗','pouring liquid'],['🫘','beans'],
-      ['🫙','jar'],['🫚','ginger root'],['🫛','pea pod'],['🫜','root vegetable'],['🫟','splatter'],
-      ['🫠','melting face'],['🫡','saluting face'],
-      ['🫢','face with open eyes and hand over mouth'],['🫣','face with peeking eye'],
-      ['🫤','face with diagonal mouth'],['🫥','dotted line face'],['🫦','biting lip'],
-      ['🫧','bubbles'],['🫨','shaking face'],['🫩','face with bags under eyes'],
-      ['🫰','hand with index finger and thumb crossed'],['🫱','rightwards hand'],
-      ['🫲','leftwards hand'],['🫳','palm down hand'],['🫴','palm up hand'],
-      ['🫵','index pointing at the viewer'],['🫶','heart hands'],['🫷','leftwards pushing hand'],
-      ['🫸','rightwards pushing hand'],
-    ],
-  },
-  {
-    name: 'Symbols',
-    items: [
-      ['☀','black sun with rays'],['☁','cloud'],['☂','umbrella'],['☃','snowman'],['☄','comet'],
-      ['★','black star'],['☆','white star'],['☇','lightning'],['☈','thunderstorm'],['☉','sun'],
-      ['☊','ascending node'],['☋','descending node'],['☌','conjunction'],['☍','opposition'],
-      ['☎','black telephone'],['☏','white telephone'],['☐','ballot box'],
-      ['☑','ballot box with check'],['☒','ballot box with x'],['☓','saltire'],
-      ['☔','umbrella with rain drops'],['☖','white shogi piece'],['☗','black shogi piece'],
-      ['☘','shamrock'],['☙','reversed rotated floral heart bullet'],
-      ['☚','black left pointing index'],['☛','black right pointing index'],
-      ['☜','white left pointing index'],['☝','white up pointing index'],
-      ['☞','white right pointing index'],['☟','white down pointing index'],
-      ['☠','skull and crossbones'],['☡','caution sign'],['☢','radioactive sign'],
-      ['☣','biohazard sign'],['☤','caduceus'],['☥','ankh'],['☦','orthodox cross'],
-      ['☧','chi rho'],['☨','cross of lorraine'],['☩','cross of jerusalem'],
-      ['☪','star and crescent'],['☫','farsi symbol'],['☬','adi shakti'],
-      ['☭','hammer and sickle'],['☮','peace symbol'],['☯','yin yang'],
-      ['☰','trigram for heaven'],['☱','trigram for lake'],['☲','trigram for fire'],
-      ['☳','trigram for thunder'],['☴','trigram for wind'],['☵','trigram for water'],
-      ['☶','trigram for mountain'],['☷','trigram for earth'],['☸','wheel of dharma'],
-      ['☹','white frowning face'],['☺','white smiling face'],['☻','black smiling face'],
-      ['☼','white sun with rays'],['☽','first quarter moon'],['☾','last quarter moon'],
-      ['☿','mercury'],['♀','female sign'],['♁','earth'],['♂','male sign'],['♃','jupiter'],
-      ['♄','saturn'],['♅','uranus'],['♆','neptune'],['♇','pluto'],['♈','aries'],['♉','taurus'],
-      ['♊','gemini'],['♋','cancer'],['♌','leo'],['♍','virgo'],['♎','libra'],['♏','scorpius'],
-      ['♐','sagittarius'],['♑','capricorn'],['♒','aquarius'],['♓','pisces'],
-      ['♔','white chess king'],['♕','white chess queen'],['♖','white chess rook'],
-      ['♗','white chess bishop'],['♘','white chess knight'],['♙','white chess pawn'],
-      ['♚','black chess king'],['♛','black chess queen'],['♜','black chess rook'],
-      ['♝','black chess bishop'],['♞','black chess knight'],['♟','black chess pawn'],
-      ['♠','black spade suit'],['♡','white heart suit'],['♢','white diamond suit'],
-      ['♣','black club suit'],['♤','white spade suit'],['♥','black heart suit'],
-      ['♦','black diamond suit'],['♧','white club suit'],['♨','hot springs'],
-      ['♩','quarter note'],['♪','eighth note'],['♫','beamed eighth notes'],
-      ['♬','beamed sixteenth notes'],['♭','music flat sign'],['♮','music natural sign'],
-      ['♰','west syriac cross'],['♱','east syriac cross'],['♲','universal recycling symbol'],
-      ['♳','recycling symbol for type-1 plastics'],['♴','recycling symbol for type-2 plastics'],
-      ['♵','recycling symbol for type-3 plastics'],['♶','recycling symbol for type-4 plastics'],
-      ['♷','recycling symbol for type-5 plastics'],['♸','recycling symbol for type-6 plastics'],
-      ['♹','recycling symbol for type-7 plastics'],
-      ['♺','recycling symbol for generic materials'],['♻','black universal recycling symbol'],
-      ['♼','recycled paper symbol'],['♽','partially-recycled paper symbol'],
-      ['♾','permanent paper sign'],['♿','wheelchair symbol'],['⚀','die face-1'],
-      ['⚁','die face-2'],['⚂','die face-3'],['⚃','die face-4'],['⚄','die face-5'],
-      ['⚅','die face-6'],['⚆','white circle with dot right'],['⚇','white circle with two dots'],
-      ['⚈','black circle with white dot right'],['⚉','black circle with two white dots'],
-      ['⚊','monogram for yang'],['⚋','monogram for yin'],['⚌','digram for greater yang'],
-      ['⚍','digram for lesser yin'],['⚎','digram for lesser yang'],
-      ['⚏','digram for greater yin'],['⚐','white flag'],['⚑','black flag'],
-      ['⚒','hammer and pick'],['⚓','anchor'],['⚔','crossed swords'],
-      ['⚕','staff of aesculapius'],['⚖','scales'],['⚗','alembic'],['⚘','flower'],
-      ['⚚','staff of hermes'],['⚛','atom symbol'],['⚜','fleur-de-lis'],
-      ['⚝','outlined white star'],['⚞','three lines converging right'],
-      ['⚟','three lines converging left'],['⚠','warning sign'],['⚢','doubled female sign'],
-      ['⚣','doubled male sign'],['⚤','interlocked female and male sign'],
-      ['⚥','male and female sign'],['⚦','male with stroke sign'],
-      ['⚧','male with stroke and male and female sign'],['⚨','vertical male with stroke sign'],
-      ['⚩','horizontal male with stroke sign'],['⚪','medium white circle'],
-      ['⚫','medium black circle'],['⚬','medium small white circle'],['⚭','marriage symbol'],
-      ['⚮','divorce symbol'],['⚯','unmarried partnership symbol'],['⚰','coffin'],
-      ['⚱','funeral urn'],['⚲','neuter'],['⚳','ceres'],['⚴','pallas'],['⚵','juno'],
-      ['⚶','vesta'],['⚷','chiron'],['⚸','black moon lilith'],['⚹','sextile'],
-      ['⚺','semisextile'],['⚻','quincunx'],['⚼','sesquiquadrate'],['⚽','soccer ball'],
-      ['⚾','baseball'],['⚿','squared key'],['⛀','white draughts man'],
-      ['⛁','white draughts king'],['⛂','black draughts man'],['⛃','black draughts king'],
-      ['⛄','snowman without snow'],['⛅','sun behind cloud'],['⛆','rain'],['⛇','black snowman'],
-      ['⛈','thunder cloud and rain'],['⛉','turned white shogi piece'],
-      ['⛊','turned black shogi piece'],['⛋','white diamond in square'],['⛌','crossing lanes'],
-      ['⛍','disabled car'],['⛎','ophiuchus'],['⛏','pick'],['⛐','car sliding'],
-      ['⛑','helmet with white cross'],['⛒','circled crossing lanes'],['⛓','chains'],
-      ['⛔','no entry'],['⛕','alternate one-way left way traffic'],
-      ['⛖','black two-way left way traffic'],['⛗','white two-way left way traffic'],
-      ['⛘','black left lane merge'],['⛙','white left lane merge'],['⛚','drive slow sign'],
-      ['⛛','heavy white down-pointing triangle'],['⛜','left closed entry'],
-      ['⛝','squared saltire'],['⛞','falling diagonal in white circle in black square'],
-      ['⛟','black truck'],['⛠','restricted left entry-1'],['⛡','restricted left entry-2'],
-      ['⛢','astronomical symbol for uranus'],
-      ['⛣','heavy circle with stroke and two dots above'],['⛤','pentagram'],
-      ['⛥','right-handed interlaced pentagram'],['⛦','left-handed interlaced pentagram'],
-      ['⛧','inverted pentagram'],['⛨','black cross on shield'],['⛩','shinto shrine'],
-      ['⛪','church'],['⛫','castle'],['⛬','historic site'],['⛭','gear without hub'],
-      ['⛮','gear with handles'],['⛯','map symbol for lighthouse'],['⛰','mountain'],
-      ['⛱','umbrella on ground'],['⛲','fountain'],['⛳','flag in hole'],['⛴','ferry'],
-      ['⛵','sailboat'],['⛶','square four corners'],['⛷','skier'],['⛸','ice skate'],
-      ['⛹','person with ball'],['⛺','tent'],['⛻','japanese bank symbol'],
-      ['⛼','headstone graveyard symbol'],['⛽','fuel pump'],['⛾','cup on black square'],
-      ['⛿','white flag with horizontal middle black stripe'],['✀','black safety scissors'],
-      ['✁','upper blade scissors'],['✂','black scissors'],['✃','lower blade scissors'],
-      ['✄','white scissors'],['✅','white heavy check mark'],['✆','telephone location sign'],
-      ['✇','tape drive'],['✊','raised fist'],['✋','raised hand'],['✌','victory hand'],
-      ['✍','writing hand'],['✎','lower right pencil'],['✐','upper right pencil'],
-      ['✑','white nib'],['✒','black nib'],['✓','check mark'],['✔','heavy check mark'],
-      ['✕','multiplication x'],['✖','heavy multiplication x'],['✗','ballot x'],
-      ['✘','heavy ballot x'],['✙','outlined greek cross'],['✚','heavy greek cross'],
-      ['✛','open centre cross'],['✜','heavy open centre cross'],['✝','latin cross'],
-      ['✞','shadowed white latin cross'],['✟','outlined latin cross'],['✠','maltese cross'],
-      ['✡','star of david'],['✢','four teardrop-spoked asterisk'],
-      ['✣','four balloon-spoked asterisk'],['✤','heavy four balloon-spoked asterisk'],
-      ['✥','four club-spoked asterisk'],['✦','black four pointed star'],
-      ['✧','white four pointed star'],['✩','stress outlined white star'],
-      ['✪','circled white star'],['✫','open centre black star'],['✬','black centre white star'],
-      ['✭','outlined black star'],['✮','heavy outlined black star'],['✯','pinwheel star'],
-      ['✰','shadowed white star'],['✱','heavy asterisk'],['✲','open centre asterisk'],
-      ['✳','eight spoked asterisk'],['✴','eight pointed black star'],
-      ['✵','eight pointed pinwheel star'],['✶','six pointed black star'],
-      ['✷','eight pointed rectilinear black star'],
-      ['✸','heavy eight pointed rectilinear black star'],['✹','twelve pointed black star'],
-      ['✺','sixteen pointed asterisk'],['✻','teardrop-spoked asterisk'],
-      ['✼','open centre teardrop-spoked asterisk'],['✽','heavy teardrop-spoked asterisk'],
-      ['✾','six petalled black and white florette'],['✿','black florette'],
-      ['❀','white florette'],['❁','eight petalled outlined black florette'],
-      ['❂','circled open centre eight pointed star'],
-      ['❃','heavy teardrop-spoked pinwheel asterisk'],['❄','snowflake'],
-      ['❅','tight trifoliate snowflake'],['❆','heavy chevron snowflake'],['❇','sparkle'],
-      ['❈','heavy sparkle'],['❉','balloon-spoked asterisk'],
-      ['❊','eight teardrop-spoked propeller asterisk'],
-      ['❋','heavy eight teardrop-spoked propeller asterisk'],['❌','cross mark'],
-      ['❍','shadowed white circle'],['❎','negative squared cross mark'],
-      ['❏','lower right drop-shadowed white square'],
-      ['❐','upper right drop-shadowed white square'],['❑','lower right shadowed white square'],
-      ['❒','upper right shadowed white square'],['❓','black question mark ornament'],
-      ['❔','white question mark ornament'],['❕','white exclamation mark ornament'],
-      ['❖','black diamond minus white x'],['❗','heavy exclamation mark symbol'],
-      ['❘','light vertical bar'],['❙','medium vertical bar'],['❚','heavy vertical bar'],
-      ['❛','heavy single turned comma quotation mark ornament'],
-      ['❜','heavy single comma quotation mark ornament'],
-      ['❝','heavy double turned comma quotation mark ornament'],
-      ['❞','heavy double comma quotation mark ornament'],
-      ['❟','heavy low single comma quotation mark ornament'],
-      ['❠','heavy low double comma quotation mark ornament'],
-      ['❡','curved stem paragraph sign ornament'],['❢','heavy exclamation mark ornament'],
-      ['❣','heavy heart exclamation mark ornament'],['❥','rotated heavy black heart bullet'],
-      ['❦','floral heart'],['❧','rotated floral heart bullet'],
-      ['➔','heavy wide-headed rightwards arrow'],['➕','heavy plus sign'],
-      ['➖','heavy minus sign'],['➗','heavy division sign'],['➘','heavy south east arrow'],
-      ['➙','heavy rightwards arrow'],['➚','heavy north east arrow'],
-      ['➛','drafting point rightwards arrow'],['➜','heavy round-tipped rightwards arrow'],
-      ['➝','triangle-headed rightwards arrow'],['➞','heavy triangle-headed rightwards arrow'],
-      ['➟','dashed triangle-headed rightwards arrow'],
-      ['➠','heavy dashed triangle-headed rightwards arrow'],['➡','black rightwards arrow'],
-      ['➢','three-d top-lighted rightwards arrowhead'],
-      ['➣','three-d bottom-lighted rightwards arrowhead'],['➤','black rightwards arrowhead'],
-      ['➥','heavy black curved downwards and rightwards arrow'],
-      ['➦','heavy black curved upwards and rightwards arrow'],
-      ['➧','squat black rightwards arrow'],['➨','heavy concave-pointed black rightwards arrow'],
-      ['➩','right-shaded white rightwards arrow'],['➪','left-shaded white rightwards arrow'],
-      ['➫','back-tilted shadowed white rightwards arrow'],
-      ['➬','front-tilted shadowed white rightwards arrow'],
-      ['➭','heavy lower right-shadowed white rightwards arrow'],
-      ['➮','heavy upper right-shadowed white rightwards arrow'],
-      ['➯','notched lower right-shadowed white rightwards arrow'],['➰','curly loop'],
-      ['➱','notched upper right-shadowed white rightwards arrow'],
-      ['➲','circled heavy white rightwards arrow'],['➳','white-feathered rightwards arrow'],
-      ['➴','black-feathered south east arrow'],['➵','black-feathered rightwards arrow'],
-      ['➶','black-feathered north east arrow'],['➷','heavy black-feathered south east arrow'],
-      ['➸','heavy black-feathered rightwards arrow'],
-      ['➹','heavy black-feathered north east arrow'],['➺','teardrop-barbed rightwards arrow'],
-      ['➻','heavy teardrop-shanked rightwards arrow'],['➼','wedge-tailed rightwards arrow'],
-      ['➽','heavy wedge-tailed rightwards arrow'],['➾','open-outlined rightwards arrow'],
-      ['➿','double curly loop'],
-    ],
-  },
+
+let cached = null
+
+/**
+ * THE OLD CURATED LIST, KEPT, and it is not nostalgia.
+ *
+ * It was the whole picker once — eighty-eight objects, on the argument that
+ * a business naming a product reaches for one. That was true of the FIRST
+ * choice and false of every one after it, which is why the rest arrived. It
+ * is still the right answer to the first choice, so it still goes first, and
+ * it is what "Surprise me" draws from: pulled from all 1,923 that button
+ * mostly returns a symbol nobody wants on a page.
+ *
+ * IN CODE RATHER THAN FETCHED, because both of those jobs have to work
+ * before a megabyte of JSON has arrived.
+ */
+export const SUGGESTED = [
+  '📦', '🎁', '🏷', '🛍', '🧾', '📁', '📂', '🗂',
+  '📄', '📋', '📌', '🔖', '📎', '🗃', '🧰', '🧱',
+  '⚙', '🔧', '🔩', '🪛', '🧲', '🔑', '🗝', '🔐',
+  '🎬', '🎥', '📷', '📸', '📹', '🎞', '🖼', '🎨',
+  '🖌', '🖍', '✏', '🎙', '🎧', '🎵', '🎶', '🎤',
+  '🔊', '📺', '💻', '🖥', '⌨', '🖱', '💾', '💿',
+  '💰', '💵', '💳', '🧮', '📈', '📉', '📊', '🏦',
+  '💎', '🪙', '🤝', '⏳', '⏱', '📅', '🗓', '🎯',
+  '🏆', '🥇', '⭐', '✨', '🔥', '⚡', '🚀', '👤',
+  '👥', '💼', '🏢', '🏠', '🏪', '🚚', '✈', '🌍',
+  '📍', '📞', '✉', '💬', '🔔', '❤', '☕', '🍰',
 ]
+
+/**
+ * `{ list, sections }` — every emoji flat for searching, and grouped for
+ * scrolling.
+ *
+ * An entry is `{ char, label, group, search }`, where `search` is the label
+ * and the tags folded into one lower-case string: matching against that is
+ * one `includes` per emoji rather than a walk over two fields and an array.
+ */
+/**
+ * THE TABLE, BUILT FROM THE TWO FILES — pure, and separate from fetching them.
+ *
+ * ── WHY THE SPLIT, WHICH IS NOT TIDINESS ──────────────────────────────
+ *
+ * A JSON module cannot be imported the same way in both places this code
+ * has to run. Node demands an import ATTRIBUTE (`with { type: 'json' }`) and
+ * refuses without one; Vite serves JSON as a JavaScript module, so WITH the
+ * attribute the browser checks the MIME type, finds `text/javascript`, and
+ * refuses instead — the picker sits on "Loading…" for ever. Both measured.
+ *
+ * There is no spelling that satisfies both, so the import is a one-line
+ * detail of the browser build and everything with a RULE in it is here,
+ * where a script can hand it two parsed objects and check what comes out.
+ */
+export function buildEmojis(data, messages) {
+  const groupName = new Map(messages.groups.map((g) => [g.order, g.message]))
+
+  /* COMPONENTS ARE NOT EMOJI. Group 2 is skin-tone modifiers and hair
+     components — pieces another emoji is built FROM, which on their own draw
+     as a bare brown rectangle. An entry with no group at all is a regional
+     indicator, half of a flag, and the same thing one level down. */
+  const list = data
+    .filter((e) => e.group != null && e.group !== 2)
+    .map((e) => ({
+      char: e.unicode,
+      label: e.label || '',
+      group: e.group,
+      search: `${e.label || ''} ${(e.tags || []).join(' ')}`.toLowerCase(),
+    }))
+
+  const order = [...new Set(list.map((e) => e.group))].sort((a, b) => a - b)
+  const byChar = new Map(list.map((e) => [e.char, e]))
+  const sections = [
+    /* SUGGESTED FIRST, and it is a section like any other so the grid needs
+       no special case for it. A character the table does not recognise still
+       draws — the curated list outlives any one version of the data. */
+    {
+      key: 'suggested',
+      title: 'Suggested',
+      items: SUGGESTED.map(
+        (char) => byChar.get(char) ?? { char, label: char, group: -1, search: char },
+      ),
+    },
+    ...order.map((g) => ({
+      key: String(g),
+      title: groupName.get(g) || 'Other',
+      items: list.filter((e) => e.group === g),
+    })),
+  ]
+
+  return { list, sections }
+}
+
+/**
+ * `{ list, sections }`, fetched once and kept.
+ *
+ * An entry is `{ char, label, group, search }`, where `search` is the label
+ * and the tags folded into one lower-case string: matching against that is
+ * one `includes` per emoji rather than a walk over two fields and an array.
+ */
+export async function loadEmojis() {
+  if (cached) return cached
+  const [data, messages] = await Promise.all([
+    import('emojibase-data/en/compact.json'),
+    import('emojibase-data/en/messages.json'),
+  ])
+  cached = buildEmojis(data.default, messages.default)
+  return cached
+}
+/** What a typed phrase reaches. An empty query is every emoji. */
+export function matchEmojis(data, query) {
+  const q = String(query ?? '').trim().toLowerCase()
+  if (!data) return []
+  if (!q) return data.list
+  return data.list.filter((e) => e.search.includes(q))
+}

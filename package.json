@@ -46,5 +46,8 @@
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.5",
     "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "emojibase-data": "^17.0.0"
   }
 }

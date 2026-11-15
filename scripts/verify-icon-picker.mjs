@@ -30,7 +30,7 @@ import { readFileSync } from 'node:fs'
 import * as Icons from 'lucide-react'
 
 import { GLYPHS, HUES, PALETTE, colorToken, matchGlyphs } from '../src/components/iconPalette.js'
-import { EMOJI_GROUPS } from '../src/components/emoji.js'
+import { SUGGESTED, buildEmojis, matchEmojis } from '../src/components/emoji.js'
 
 /* A RETIRED PALETTE, as a consuming app would pass one. The library has no
    legacy of its own — it has never shipped a colour anybody could have
@@ -273,15 +273,73 @@ check(
 
 /* ── The emoji half ───────────────────────────────────────────────────────── */
 
-const emojiCount = EMOJI_GROUPS.reduce((n, g) => n + g.items.length, 0)
-check('the emoji table is the whole set rather than a hand-picked ninety-six', emojiCount > 1500, String(emojiCount))
+/*
+  ── THE EMOJI, AND THE THREE WAYS THE OLD TABLE WAS WRONG ────────────────
+
+  It was generated from `unicodedata`: 1,743 characters, complete enough to
+  LOOK complete. Each of these is a thing somebody would try once, fail at,
+  and never report as a bug.
+*/
+/* READ WITH `fs`, NOT IMPORTED. A JSON module needs an import attribute in
+   node and must not have one in a browser — see `emoji.js` for the two
+   measurements. That is why `buildEmojis` takes the parsed objects: the half
+   with the rules in it can then be driven from either side. */
+const read = (f) =>
+  JSON.parse(readFileSync(new URL(`../node_modules/emojibase-data/en/${f}.json`, import.meta.url), 'utf8'))
+const data = buildEmojis(read('compact'), read('messages'))
+
 check(
-  'SUGGESTED IS FIRST, which is what "Surprise me" draws from — pulled from all seventeen hundred it mostly returns a symbol nobody wants on a page',
-  EMOJI_GROUPS[0].name === 'Suggested' && EMOJI_GROUPS[0].items.length > 20,
+  'the whole set arrives, FLAGS INCLUDED — a flag is a PAIR of regional indicators rather than one character, so it is in no Unicode block and the old generator never saw one',
+  data.list.length > 1800 && matchEmojis(data, 'israel').length === 1,
+  `${data.list.length} emoji`,
 )
 check(
-  'every emoji carries a name, which is the only handle a search has once scrolling stops being a way to find anything',
-  EMOJI_GROUPS.every((g) => g.items.every(([char, name]) => typeof char === 'string' && char && typeof name === 'string' && name)),
+  'THE LABELS ARE THE ONES PEOPLE TYPE. The old table carried Unicode 6 names — "heavy black heart" — so searching "red heart", which is what that character is called today, found nothing',
+  matchEmojis(data, 'red heart').length > 0,
+)
+check(
+  'AND THE SEARCH READS THE TAGS, not only the label: "happy" is in no label of \u{1F600} and "love" is in no label of \u2764\uFE0F, and both are what somebody types',
+  matchEmojis(data, 'happy').length > 3 && matchEmojis(data, 'love').length > 3,
+  `happy ${matchEmojis(data, 'happy').length}, love ${matchEmojis(data, 'love').length}`,
+)
+check(
+  'THE GROUPS ARE CATEGORIES, not Unicode blocks. "Nature & things" used to hold weather, plants and staplers, because that is how Unicode filed them',
+  data.sections.some((s) => s.title === 'food & drink') &&
+    data.sections.some((s) => s.title === 'flags') &&
+    !data.sections.some((s) => s.title === 'Nature & things'),
+  data.sections.map((s) => s.title).join(' | '),
+)
+check(
+  'COMPONENTS ARE NOT EMOJI — a skin-tone modifier on its own draws as a bare brown rectangle, and half a flag draws as a letter in a box',
+  data.list.every((e) => e.group !== 2) &&
+    matchEmojis(data, 'regional indicator').length === 0,
+)
+check(
+  'SUGGESTED IS STILL FIRST and is still the curated list — it is the right answer to the FIRST choice, and it is what "Surprise me" draws from: pulled from all 1,900 that button mostly returns a symbol nobody wants on a page',
+  data.sections[0].title === 'Suggested' &&
+    data.sections[0].items.length === SUGGESTED.length &&
+    SUGGESTED.length > 20,
+  `${data.sections[0].items.length} of ${SUGGESTED.length}`,
+)
+check(
+  '…and it is in CODE rather than fetched, because "Surprise me" and the first section both have to work before a megabyte of JSON has arrived',
+  /export const SUGGESTED = \[/.test(readFileSync(new URL('../src/components/emoji.js', import.meta.url), 'utf8')),
+)
+check(
+  'every emoji carries a label, which is the only handle a search has once scrolling stops being a way to find anything',
+  data.list.every((e) => typeof e.char === 'string' && e.char && typeof e.label === 'string' && e.label),
+)
+check(
+  'an empty query is every emoji, never none of them',
+  matchEmojis(data, '').length === data.list.length && matchEmojis(data, '   ').length === data.list.length,
+)
+check(
+  'and the table is fetched ONCE — a megabyte re-parsed on every open is a picker that gets slower the more it is used',
+  /if \(cached\) return cached/.test(readFileSync(new URL('../src/components/emoji.js', import.meta.url), 'utf8')),
+)
+check(
+  '…and the import carries NO attribute, which is the spelling the browser needs: node demands one and Vite serves JSON as a JavaScript module, so with it the picker sits on "Loading…" for ever. Both measured',
+  !/compact\.json', \{ with/.test(readFileSync(new URL('../src/components/emoji.js', import.meta.url), 'utf8')),
 )
 
 /* ── What only the source can say ─────────────────────────────────────────── */
@@ -295,20 +353,52 @@ const src = readFileSync(new URL('../src/components/IconPicker.jsx', import.meta
 const codeOnly = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
 const code = codeOnly(src)
 
+/*
+  ── ONE MEASUREMENT, AND EVERYTHING ELSE DERIVED FROM IT ─────────────────
+
+  A cell was 28px, which is the size of a toolbar button and the wrong size
+  for a thing you choose by LOOKING at it: the difference between 😬 and
+  😑 is in the mouth, and at 28 there is no mouth.
+
+  THE INTERESTING PART IS NOT THE NUMBER, it is that four things have to
+  agree with it — the cell, the column track, the intrinsic size the browser
+  reserves for a cell it has not drawn, and the width of the panel around
+  them. Chosen independently they drift: the last column does not fit and
+  the row silently becomes seven, which is a different picker on a different
+  screen, and the scrollbar lies about how much is below.
+
+  So the checks are about the DERIVATION, not about any of the numbers.
+*/
+const sizeOf = (name) => Number((code.match(new RegExp(`const ${name} = (\\d+)`)) ?? [])[1])
+const SIZE = sizeOf('SIZE')
+const COLUMNS = sizeOf('COLUMNS')
+const GAP = sizeOf('GAP')
+const PAD = sizeOf('PAD')
+
 check(
-  'THE CELLS DECLARE AN INTRINSIC SIZE. `content-visibility: auto` is what makes 1,767 buttons affordable; without `contain-intrinsic-size` a skipped cell measures zero, the grid collapses and the scrollbar jumps as rows come into view',
-  /contentVisibility: 'auto'/.test(code) &&
-    /containIntrinsicSize: '28px 28px'/.test(code) &&
-    /\.\.\.CELL,/.test(code),
+  'the picker is built from one cell size, big enough to tell two faces apart',
+  SIZE >= 36 && COLUMNS >= 8,
+  `${COLUMNS} columns of ${SIZE}`,
 )
-/* AND THAT A CELL ACTUALLY SPREADS IT. The first version of this check read
-   the `CELL` constant alone, so deleting the one line that applies it left
-   every assertion green while 1,767 cells went back to being laid out and
-   painted whether or not anybody could see them. A constant nothing reads
-   is not a setting — found by mutation, which is what mutations are for. */
 check(
-  'the grid is nine columns of 28, and the panel’s width is derived from that rather than chosen — at 288 the ninth column did not fit and the row silently became eight',
-  /repeat\(9, 28px\)/.test(src) && /inlineSize: 320/.test(src),
+  'THE INTRINSIC SIZE IS THAT SIZE. `content-visibility: auto` is what makes 1,767 buttons affordable, and `contain-intrinsic-size` is what makes it correct — a cell that reserves the wrong amount is a scrollbar that jumps as rows come into view',
+  new RegExp(`containIntrinsicSize: \\\`\\$\\{SIZE\\}px \\$\\{SIZE\\}px\\\``).test(code) &&
+    /inlineSize: SIZE,/.test(code) &&
+    /blockSize: SIZE,/.test(code),
+)
+check(
+  '…and so is the column track, so a cell and the space it sits in cannot disagree',
+  /repeat\(\$\{COLUMNS\}, \$\{SIZE\}px\)/.test(code),
+)
+check(
+  'THE PANEL IS AS WIDE AS ITS GRID, never a number somebody liked: the columns, the gaps and the padding either side',
+  /const WIDTH = COLUMNS \* SIZE \+ \(COLUMNS - 1\) \* GAP \+ PAD \* 2/.test(code) &&
+    /inlineSize: WIDTH,/.test(code),
+)
+check(
+  '…and the arithmetic comes out where the panel is actually drawn',
+  COLUMNS * SIZE + (COLUMNS - 1) * GAP + PAD * 2 + 2 >= 350,
+  String(COLUMNS * SIZE + (COLUMNS - 1) * GAP + PAD * 2 + 2),
 )
 check(
   'THE COLOUR ROW IS ON THE ICONS TAB ONLY. An emoji carries its own colour, and a swatch that does nothing to it is a control that lies',

@@ -26,7 +26,7 @@
 
 export { IconPicker, ProductIcon } from './components/IconPicker.jsx'
 export { GLYPHS, HUES, PALETTE, colorToken, matchGlyphs } from './components/iconPalette.js'
-export { EMOJI_GROUPS } from './components/emoji.js'
+export { SUGGESTED, buildEmojis, loadEmojis, matchEmojis } from './components/emoji.js'
 
 export { ColorPicker, ColorWell } from './components/ColorPicker.jsx'
 export { cssHex, hexToHsv, hsvToHex, normalizeHex, rgbToHex } from './lib/color.js'
