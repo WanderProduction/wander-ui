@@ -13,6 +13,8 @@
  *
  * So the arithmetic is out of the component and driven here.
  */
+import { readFileSync } from 'node:fs'
+
 import {
   cssHex,
   hexToHsv,
@@ -224,6 +226,31 @@ check(
   ownsBranch('', a) === true && ownsBranch('   ', a) === true,
 )
 check('and nothing at all is not a branch', ownsBranch(null, a) === false && ownsBranch(undefined, a) === false)
+
+/*
+  ── AND THE PICKER HAS TO TAKE A NUMBER ──────────────────────────────────
+
+  The rule above is only worth anything if the window that needs it uses it.
+  Every floating surface closes on a mousedown outside itself, and
+  `data-popover-branch` with a NUMBER is how one says it belongs to another.
+
+  A picker opened from a hover submenu or from a generic popover is a click
+  OUTSIDE both of them: they ask the DOM rather than listening for an event,
+  so an unmarked picker closed the menu underneath it — and itself with it —
+  the instant the square was touched. This check travelled here with the
+  component; the app it came from had it, and the app it came from can no
+  longer see the source that has to satisfy it.
+*/
+const pickerSrc = readFileSync(new URL('../src/components/ColorPicker.jsx', import.meta.url), 'utf8')
+check(
+  'THE PICKER IS A NUMBERED BRANCH of whatever opened it, or touching the square closes the menu underneath and the picker with it',
+  /data-popover-branch=\{branchSeq\}/.test(pickerSrc) && /useState\(nextPopoverSeq\)/.test(pickerSrc),
+)
+check(
+  '…and the number is taken ONCE, as it opens. Asking for a new one on every render would make the window younger than its own children, and a parent that cannot be clicked is the bug this numbering exists to stop',
+  (pickerSrc.match(/nextPopoverSeq/g) ?? []).length === 2,
+  String((pickerSrc.match(/nextPopoverSeq/g) ?? []).length),
+)
 
 console.log(`\n  ${checks - failures}/${checks} checks passed\n`)
 process.exit(failures === 0 ? 0 : 1)

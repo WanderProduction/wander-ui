@@ -29,7 +29,7 @@ export { GLYPHS, HUES, PALETTE, colorToken, matchGlyphs } from './components/ico
 export { EMOJI_GROUPS } from './components/emoji.js'
 
 export { ColorPicker, ColorWell } from './components/ColorPicker.jsx'
-export { cssHex, hexToHsv, hsvToHex, normalizeHex } from './lib/color.js'
+export { cssHex, hexToHsv, hsvToHex, normalizeHex, rgbToHex } from './lib/color.js'
 
 export { nextPopoverSeq, ownsBranch } from './lib/popoverOrder.js'
 export { RECENT_MAX, keepEmoji, readRecent, writeRecent } from './lib/recent.js'
