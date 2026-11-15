@@ -1,0 +1,67 @@
+@import "tailwindcss";
+@source "../src";
+
+/*
+ * THE FIFTEEN, DEFINED ONCE, SO THE HARNESS IS ALSO THE EXAMPLE.
+ *
+ * This is not a theme the library ships — it ships none — it is the smallest
+ * host a consuming app could be, and it exists for two reasons. One: the
+ * components cannot be looked at without something defining what `--card` is.
+ * Two: a reader who wants to know what the contract actually demands can read
+ * this file instead of believing the README.
+ *
+ * `verify-tokens.mjs` holds the list; these are plausible values for it.
+ */
+:root {
+  color-scheme: dark;
+
+  --foreground: #e8e8ea;
+  --muted-foreground: #8c8c96;
+  --secondary-foreground: #c8c8d0;
+
+  --card: #1b1b1f;
+  --input: #27272c;
+
+  --border: #33333a;
+  --border-strong: #4a4a54;
+
+  --hover: rgba(255, 255, 255, 0.06);
+  --accent-subtle: color-mix(in srgb, var(--primary) 14%, transparent);
+  --primary: #7c6cf0;
+
+  --radius-base: 6px;
+  --shadow-popover: 0 14px 34px rgba(0, 0, 0, 0.45);
+
+  --success: #37a06f;
+  --warning: #dcae3d;
+  --danger: #e5564f;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --foreground: #1c1c20;
+  --muted-foreground: #6b6b76;
+  --secondary-foreground: #3a3a42;
+
+  --card: #ffffff;
+  --input: #f2f2f5;
+
+  --border: #e2e2e8;
+  --border-strong: #c2c2cc;
+
+  --hover: rgba(0, 0, 0, 0.05);
+  --shadow-popover: 0 14px 34px rgba(0, 0, 0, 0.16);
+}
+
+body {
+  margin: 0;
+  background: #0f0f12;
+  color: var(--foreground);
+  font-family: system-ui, sans-serif;
+}
+
+[data-theme='light'] body,
+body[data-theme='light'] {
+  background: #f6f6f8;
+}
